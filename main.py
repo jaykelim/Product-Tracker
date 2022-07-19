@@ -1,5 +1,6 @@
 import psycopg2
 import requests
+import time
 from bs4 import BeautifulSoup
 from config import MYSQL
 
@@ -50,4 +51,9 @@ def get_db_list() -> list:
 
 
 if __name__ == "__main__":
-    pass
+    try:
+        while True:
+            print("Press ctrl^c to exit")
+            time.sleep(5)
+    except KeyboardInterrupt:
+        pass
