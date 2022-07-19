@@ -22,7 +22,20 @@ def extract_data(item):
 
 
 def get_live_products() -> list:
-    r = requests.get('https://leencustoms.com/collections/limited-releases')
+    try:
+        r = requests.get(
+            'https://leencustoms.com/collections/limited-releases')
+    except requests.exceptions.HTTPError as errh:
+        print("Http Error:", errh)
+    except requests.exceptions.ConnectionError as errc:
+        print("Error Connecting:", errc)
+    except requests.exceptions.TooManyRedirects as errd:
+        print("Too many redirects, waiting 15 seconds:", errd)
+    except requests.exceptions.Timeout as errt:
+        print("Timeout Error:", errt)
+    except requests.exceptions.RequestException as err:
+        print("OOps: Something Else", err)
+
     soup = BeautifulSoup(r.text, 'html.parser')
     products = soup.find_all("div", class_='grid-product__content')
     product_list = []
@@ -42,8 +55,8 @@ def get_db_list() -> list:
     cur = con.cursor()
     # Select all rows from products table
     cur.execute("""
-      SELECT * FROM leen_products
-      """)
+    SELECT * FROM leen_products
+    """)
     products = cur.fetchall()
     cur.close()
     con.close()
@@ -52,8 +65,9 @@ def get_db_list() -> list:
 
 if __name__ == "__main__":
     try:
+        print("Press ctrl^c to exit")
         while True:
-            print("Press ctrl^c to exit")
+            print("doing something here")
             time.sleep(5)
     except KeyboardInterrupt:
         pass
