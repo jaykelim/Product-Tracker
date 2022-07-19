@@ -2,8 +2,11 @@ import psycopg2
 import requests
 import time
 import re
+from time import strftime
 from bs4 import BeautifulSoup
 from config import MYSQL
+from datetime import datetime
+from pytz import timezone
 
 # Extract relevant data from element set
 
@@ -45,6 +48,8 @@ def get_live_products() -> list:
 
 
 # Retrieves the current table in DB
+
+
 def get_db_list() -> list:
     con = psycopg2.connect(host=MYSQL.HOST,
                            port=MYSQL.PORT,
@@ -66,9 +71,68 @@ def get_db_list() -> list:
 
 
 def compare(oldList, newList):
+    fmt = "%Y-%m-%d %H:%M:%S"
+    now_time = datetime.now(timezone('US/Eastern'))
+    print("\n(" + now_time.strftime(fmt) +
+          ") Comparing old list vs new list...")
     deleteList = list(set(oldList) - set(newList))
     insertList = list(set(newList) - set(oldList))
+    print("# of deletes:", len(deleteList))
+    print("# of inserts:", len(insertList))
     return deleteList, insertList
+
+
+def delete_from_db(delete_list):
+    con = psycopg2.connect(host=MYSQL.HOST,
+                           port=MYSQL.PORT,
+                           user=MYSQL.USER,
+                           password=MYSQL.PASSWORD,
+                           database="leen_customs_limited_pins")
+    # Get a database cursor
+    cur = con.cursor()
+    # Select all rows from products table
+    for product in delete_list:
+        prod_url = product[2]
+        print("deleting: "+prod_url)
+        cur.execute("""
+          DELETE FROM leen_products WHERE url = %s""",
+                    (
+                        prod_url
+                    )
+                    )
+
+    con.commit()
+    cur.close()
+    con.close()
+
+
+def insert_in_db(insert_list):
+    con = psycopg2.connect(host=MYSQL.HOST,
+                           port=MYSQL.PORT,
+                           user=MYSQL.USER,
+                           password=MYSQL.PASSWORD,
+                           database="leen_customs_limited_pins")
+    # Get a database cursor
+    cur = con.cursor()
+    # Select all rows from products table
+    for product in insert_list:
+        #p_name, p_stock, p_url, p_price, p_image = extract_data(product)
+        cur.execute("""
+        INSERT INTO leen_products (name, stock, url, price, image_url)
+        VALUES (%s, %s, %s, %s, %s)
+        """,
+                    (
+                        product[0],
+                        product[1],
+                        product[2],
+                        product[3],
+                        product[4]
+                    )
+                    )
+
+    con.commit()
+    cur.close()
+    con.close()
 
 
 if __name__ == "__main__":
@@ -92,8 +156,8 @@ if __name__ == "__main__":
 
                 insert_in_db(insert_list)
 
-            for product in p_list:
-                print(product[0])
+            # for product in p_list:
+            #     print(product[0])
 
             time.sleep(60)
     except KeyboardInterrupt:
