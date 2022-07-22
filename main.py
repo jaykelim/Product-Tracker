@@ -4,7 +4,7 @@ import time
 import re
 from time import strftime
 from bs4 import BeautifulSoup
-from config import MYSQL
+from config import INFO
 from datetime import datetime
 from pytz import timezone
 
@@ -51,10 +51,10 @@ def get_live_products() -> list:
 
 
 def get_db_list() -> list:
-    con = psycopg2.connect(host=MYSQL.HOST,
-                           port=MYSQL.PORT,
-                           user=MYSQL.USER,
-                           password=MYSQL.PASSWORD,
+    con = psycopg2.connect(host=INFO.HOST,
+                           port=INFO.PORT,
+                           user=INFO.USER,
+                           password=INFO.PASSWORD,
                            database="leen_customs_limited_pins")
     # Get a database cursor
     cur = con.cursor()
@@ -139,7 +139,6 @@ if __name__ == "__main__":
     try:
         print("Press ctrl^c to exit")
         while True:
-            print("doing something here")
             p_list = get_live_products()
             db_list = get_db_list()
             delete_list, insert_list = compare(db_list, p_list)
@@ -153,7 +152,6 @@ if __name__ == "__main__":
                 print("\nInserting items into the list:")
                 for item in insert_list:
                     print(item[0])
-
                 insert_in_db(insert_list)
 
             # for product in p_list:
