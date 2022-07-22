@@ -154,7 +154,7 @@ if __name__ == "__main__":
                 print("\nRemoving items from the list:")
                 for item in delete_list:
                     print(item[0])
-                    sms.send("New item added: "+item[2])
+                    sms.send("New item added: "+item[0])
                 delete_from_db(delete_list)
 
             if len(insert_list) > 0:
@@ -167,7 +167,9 @@ if __name__ == "__main__":
             #     print(product[0])
 
             time.sleep(refresh_rate)
-    except Exception():
-        sms.send("error: ")
+
     except KeyboardInterrupt:
         pass
+    except Exception():
+        print("error")
+        sms.send("error: ")
