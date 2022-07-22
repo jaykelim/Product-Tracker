@@ -2,6 +2,7 @@ import psycopg2
 import requests
 import time
 import re
+import sms
 from time import strftime
 from bs4 import BeautifulSoup
 from config import INFO
@@ -9,6 +10,8 @@ from datetime import datetime
 from pytz import timezone
 
 # Extract relevant data from element set
+
+refresh_rate = 30
 
 
 def extract_data(item):
@@ -59,12 +62,17 @@ def get_db_list() -> list:
     # Get a database cursor
     cur = con.cursor()
     # Select all rows from products table
-    cur.execute("""
-    SELECT * FROM leen_products
-    """)
-    products = cur.fetchall()
-    cur.close()
-    con.close()
+    try:
+        cur.execute("""
+      SELECT * FROM leen_products
+      """)
+        products = cur.fetchall()
+    except:
+        print("Could not fetch data from db")
+        sms.send("Could not fetch data from db")
+    finally:
+        cur.close()
+        con.close()
     return products
 
 # compares two lists
@@ -146,6 +154,7 @@ if __name__ == "__main__":
                 print("\nRemoving items from the list:")
                 for item in delete_list:
                     print(item[0])
+                    sms.send("New item added: "+item[2])
                 delete_from_db(delete_list)
 
             if len(insert_list) > 0:
@@ -157,6 +166,8 @@ if __name__ == "__main__":
             # for product in p_list:
             #     print(product[0])
 
-            time.sleep(60)
+            time.sleep(refresh_rate)
+    except Exception():
+        sms.send("error: ")
     except KeyboardInterrupt:
         pass
