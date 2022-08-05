@@ -11,7 +11,7 @@ carriers = {
 
 def send(msg):
     # Replace the number with your own, or consider using an argument\dict for multiple people.
-    to_number = INFO.PHONENUM+'{}'.format(carriers['att'])
+    to_number = INFO.PHONENUM+'{}'.format(carriers['verizon'])
     auth = (INFO.EMAIL, INFO.EMAILPASSWORD)
 
     # Establish a secure session with gmail's outgoing SMTP server using your gmail account

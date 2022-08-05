@@ -91,10 +91,10 @@ def compare(oldList, newList):
 
 
 def delete_from_db(delete_list):
-    con = psycopg2.connect(host=MYSQL.HOST,
-                           port=MYSQL.PORT,
-                           user=MYSQL.USER,
-                           password=MYSQL.PASSWORD,
+    con = psycopg2.connect(host=INFO.HOST,
+                           port=INFO.PORT,
+                           user=INFO.USER,
+                           password=INFO.PASSWORD,
                            database="leen_customs_limited_pins")
     # Get a database cursor
     cur = con.cursor()
@@ -103,10 +103,7 @@ def delete_from_db(delete_list):
         prod_url = product[2]
         print("deleting: "+prod_url)
         cur.execute("""
-          DELETE FROM leen_products WHERE url = %s""",
-                    (
-                        prod_url
-                    )
+          DELETE FROM leen_products WHERE url = '{}'""".format(prod_url)
                     )
 
     con.commit()
@@ -115,10 +112,10 @@ def delete_from_db(delete_list):
 
 
 def insert_in_db(insert_list):
-    con = psycopg2.connect(host=MYSQL.HOST,
-                           port=MYSQL.PORT,
-                           user=MYSQL.USER,
-                           password=MYSQL.PASSWORD,
+    con = psycopg2.connect(host=INFO.HOST,
+                           port=INFO.PORT,
+                           user=INFO.USER,
+                           password=INFO.PASSWORD,
                            database="leen_customs_limited_pins")
     # Get a database cursor
     cur = con.cursor()
@@ -155,6 +152,7 @@ if __name__ == "__main__":
                 for item in delete_list:
                     print(item[0])
                     sms.send("New item added: "+item[0])
+                    time.sleep(.5)
                 delete_from_db(delete_list)
 
             if len(insert_list) > 0:
